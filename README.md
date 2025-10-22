@@ -1,58 +1,81 @@
-# Interaktivní Mapa pro Orientaci ve Webovém Vývoji
+# WebDev Map (interaktivní rozhodovací mapa)
 
-## O projektu
+Interaktivní webová mapa pro orientaci v rozhodování a technologiích kolem webového vývoje. Můžete přidávat uzly různých typů, propojovat je hranami, filtrovat typy, a vše se automaticky ukládá do LocalStorage. Data je možné exportovat/importovat jako JSON.
 
-Tato aplikace je interaktivní mapa určená k lepšímu pochopení a orientaci ve světě webového vývoje. Uživatelé mohou prozkoumávat různé koncepty a technologie pomocí vizuálního rozhraní, které umožňuje snadné přidávání, přesouvání a propojování jednotlivých prvků.
+## Tech stack
 
-## Technologie a Architektura
+- React + React Flow (vizualizace uzlů/hran)
+- Vite (dev server a build)
+- Tailwind CSS v4.1 (utility přes `@import "tailwindcss";` a `@apply` v CSS)
+- LocalStorage pro perzistenci (bez backendu)
 
-- **Frontend:** React s využitím knihovny React Flow pro vizualizaci a manipulaci s grafy.
-- **Backend:** Žádný backend, veškerá data jsou ukládána lokálně v prohlížeči pomocí LocalStorage.
-- **Ukládání dat:** Stav mapy se ukládá do LocalStorage, což umožňuje zachování uživatelských změn mezi relacemi.
+## Spuštění
 
-## Struktura složek
+1) Instalace závislostí
 
-- `src/` – hlavní zdrojový kód aplikace
-  - `components/` – React komponenty aplikace
-  - `hooks/` – vlastní React hooky
-  - `styles/` – styly aplikace
-  - `utils/` – pomocné utility a funkce
-- `public/` – statické soubory a assets
+```
+npm install
+```
 
-## Hlavní komponenty
+2) Vývojový server
 
-- **Map** – hlavní komponenta zajišťující vykreslení a správu interaktivní mapy.
-- **Node** – komponenta reprezentující jednotlivé uzly na mapě.
-- **Controls** – ovládací prvky pro interakci s mapou (zoom, reset, přidání uzlů).
-- **Sidebar** – panel s informacemi a možnostmi konfigurace.
-- **nodeTypes** – definice typů uzlů, které jsou mimo hlavní komponentu pro lepší přehlednost a výkon.
+```
+npm run dev
+```
 
-## Instrukce pro spuštění projektu
+Poté otevřete adresu vypsanou Vite (typicky `http://localhost:5173`).
 
-1. Klonujte repozitář:
-   ```
-   git clone <url-repozitáře>
-   ```
-2. Nainstalujte závislosti:
-   ```
-   npm install
-   ```
-3. Spusťte vývojový server:
-   ```
-   npm start
-   ```
-4. Otevřete aplikaci v prohlížeči na adrese:
-   ```
-   http://localhost:3000
-   ```
+3) Build produkce
 
-## Poznámky pro vývoj
+```
+npm run build
+npm run preview
+```
 
-- **nodeTypes** jsou definovány mimo hlavní komponentu, aby se zabránilo jejich opětovnému vytváření při každém renderu, což zlepšuje výkon.
-- Velikost plátna (canvas) je klíčová pro správné fungování mapy a měla by být nastavena tak, aby pokrývala požadovaný prostor pro interakci.
-- Ukládání do LocalStorage umožňuje zachovat stav mapy mezi relacemi, ale je potřeba počítat s omezeními velikosti a případným resetem dat.
-- Doporučuje se pravidelně testovat aplikaci v různých prohlížečích a zařízeních kvůli kompatibilitě a responzivitě.
+## Použití
 
----
+- Přidání uzlu: v levém horním toolbaru zvolte typ uzlu (Info/Rozhodnutí/Technologie/Úkol/Zdroj).
+- Propojení: přetáhněte spojku (handle) z uzlu na jiný uzel; hrany jsou „smoothstep“ se šipkou.
+- Editace: vyberte uzel nebo hranu a upravujte v pravém panelu (záložky Základ / Plus-Mínus / Odkazy).
+- Filtrování: v toolbaru zapínejte/vypínejte zobrazení typů uzlů.
+- Uložení: probíhá automaticky (LocalStorage, klíč `maps:webdev`).
+- Export/Import: JSON soubor s kompletním stavem grafu.
+- Reset: návrat na demo data; „Smazat uložené“ vyčistí LocalStorage.
 
-Tento projekt je otevřený pro další rozvoj a přispění, neváhejte se zapojit!
+## Struktura projektu (výběr souborů)
+
+- `src/main.jsx` – mount aplikace do `#root` (React StrictMode)
+- `src/App.jsx` – kořenová komponenta, vykreslí `WebDevMap`
+- `src/WebDevMap.jsx` – hlavní logika: stav uzlů/hran, filtry, import/export, React Flow plátno a pravý editor
+- `src/lib/storage.js` – hook `useLocalStore` a `STORAGE_KEY`
+- `src/data/types.js` – definice typů uzlů a jejich barev
+- `src/data/demoData.js` – seed demo dat grafu
+- `src/components/Toolbar.jsx` – tlačítka pro přidávání, export/import, filtry
+- `src/components/nodes/BaseNode.jsx` – vzhled jednoho uzlu (title, tags, plus/minus, odkazy)
+- `src/components/nodes/nodeTypes.jsx` – mapování typů uzlů pro React Flow
+- `src/components/editors/NodeEditor.jsx` – editor uzlu/hrany v pravém panelu
+- `src/components/editors/ArrayEditor.jsx` – editor prostého seznamu (výhody/nevýhody)
+- `src/components/editors/LinkEditor.jsx` – editor odkazů
+
+## Styly (Tailwind v4)
+
+- `src/input.css` – vstup pro Tailwind, případná `@theme` konfigurace
+- `src/output.css` – build artefakt generovaný Tailwindem (neupravovat ručně)
+- `src/index.css` – globální styly aplikace (layout, vzhled uzlů, UI)
+- `src/App.css` – zbytky demo stylů z Vite (lze postupně odstranit)
+
+## Data formát (JSON)
+
+```
+{
+  "version": 5,
+  "nodes": [ { id, type, position: {x,y}, data: { title, summary, pros, cons, links, tags } }, ... ],
+  "edges": [ { id, source, target, type, markerEnd, label, data }, ... ]
+}
+```
+
+## Poznámky
+
+- Node typy jsou stabilní a registrované v `nodeTypes.jsx` (zmražené pro lepší výkon).
+- Uložení do LocalStorage může selhat v režimech se zákazem storage; kód to bezpečně ignoruje.
+- Velikost plátna React Flow je řízena v `src/index.css` (`.rf-wrapper`).
