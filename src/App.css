@@ -1,5 +1,12 @@
+/*
+  Styly scaffoldu z Vite šablony (logo, demo layout). 
+  V produkční aplikaci lze většinu z toho odstranit nebo nahradit vlastními styly.
+*/
+
+/* Načtení Tailwindu (pokud komponenta používá @apply nebo utility) */
 @import "tailwindcss";
 
+/* Kontejner kořenové aplikace v demo šabloně */
 #root {
   max-width: 1280px;
   margin: 0 auto;
@@ -7,6 +14,7 @@
   text-align: center;
 }
 
+/* Demo styl pro logo (hover a animace) */
 .logo {
   height: 6em;
   padding: 1.5em;
@@ -20,6 +28,7 @@
   filter: drop-shadow(0 0 2em #61dafbaa);
 }
 
+/* Animace rotace loga použitá v demo */
 @keyframes logo-spin {
   from {
     transform: rotate(0deg);
@@ -29,16 +38,19 @@
   }
 }
 
+/* Spuštění animace jen pokud uživatel neprefers-reduced-motion */
 @media (prefers-reduced-motion: no-preference) {
   a:nth-of-type(2) .logo {
     animation: logo-spin infinite 20s linear;
   }
 }
 
+/* Pomocná třída pro demo kartu */
 .card {
   padding: 2em;
 }
 
+/* Neutrální barva textu pro odkaz na dokumentaci v demo */
 .read-the-docs {
   color: #888;
 }

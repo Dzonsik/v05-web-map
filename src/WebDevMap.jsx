@@ -1,3 +1,6 @@
+// Hlavní React komponenta pro interaktivní mapu dovedností ve webdevu.
+// Tento soubor obsahuje kontejner celé aplikace, práci se stavem uzlů/hran,
+// filtrováním, import/export dat, a pravým panelem s editorem.
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import ReactFlow, {
   addEdge, Background, Controls, MiniMap,
@@ -5,30 +8,41 @@ import ReactFlow, {
 } from "reactflow";
 import "reactflow/dist/style.css";
 
+// Konstanty s typy uzlů (kategorie) a demo data
 import { TYPES } from "./data/types";
 import { demo } from "./data/demoData";
+// Hook pro práci s LocalStorage (načítání/ukládání) a klíč pro storage
 import { useLocalStore, STORAGE_KEY } from "./lib/storage";
 
+// UI komponenty: horní/levý toolbar a pravý editor vlastností uzlu/hrany
 import Toolbar from "./components/Toolbar";
 import NodeEditor from "./components/editors/NodeEditor";
 import { nodeTypes as nodeTypes } from "./components/nodes/nodeTypes";
 import './index.css';
 
 export default function WebDevMap() {
+  // Persistenční API nad LocalStorage
   const { load, save, clear } = useLocalStore();
+  // Po prvním renderu zkusíme načíst uložená data, jinak použijeme demo
   const initial = useMemo(() => load() || demo(), [load]);
 
+  // Stav React Flow: seznam uzlů a hran (+ obslužné funkce změn)
   const [nodes, setNodes, onNodesChange] = useNodesState(initial.nodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initial.edges);
+  // Aktuálně vybraný prvek (uzel nebo hrana)
   const [selected, setSelected] = useState(null);
+  // Stav filtrů podle typu uzlu (výchozí: vše zapnuto)
   const [filters, setFilters] = useState(() => Object.fromEntries(TYPES.map(t=>[t.id,true])));
 
+  // Autosave: při každé změně uzlů/hran uložit do LocalStorage
   useEffect(() => { save({ version: 2, nodes, edges }); }, [nodes, edges, save]);
 
+  // Přidání hrany mezi uzly (použijeme hladký typ s šipkou)
   const onConnect = useCallback((params) =>
     setEdges((eds) => addEdge({ ...params, type: "smoothstep", markerEnd: { type: MarkerType.ArrowClosed } }, eds)),
   []);
 
+  // Přidání nového uzlu vybraného typu s náhodnou pozicí
   const onAddNode = useCallback((type) => {
     const id = `n_${Date.now().toString(36)}_${Math.floor(Math.random()*999)}`;
     const base = { x: Math.random() * 200 + 100, y: Math.random() * 120 + 80 };
@@ -36,6 +50,7 @@ export default function WebDevMap() {
     setNodes((ns) => ([...ns, { id, type, position: base, data: defaults }]));
   }, []);
 
+  // Export aktuálního grafu jako JSON soubor
   const onExport = useCallback(() => {
     const payload = { version: 2, nodes, edges };
     const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
@@ -44,17 +59,21 @@ export default function WebDevMap() {
     a.href = url; a.download = "webdev-map.json"; a.click(); URL.revokeObjectURL(url);
   }, [nodes, edges]);
 
+  // Import grafu z JSONu (základní validace struktury)
   const onImport = useCallback((data) => {
     if (!data || !Array.isArray(data.nodes) || !Array.isArray(data.edges)) { alert("Soubor nemá očekávanou strukturu."); return; }
     setNodes(data.nodes); setEdges(data.edges);
   }, []);
 
+  // Obnovení na výchozí demo data
   const onReset = useCallback(() => { const d = demo(); setNodes(d.nodes); setEdges(d.edges); }, []);
+  // Vymazání uložených dat v LocalStorage
   const onClear = useCallback(() => { clear(); alert("Lokální uložená data smazána."); }, [clear]);
 
+  // Reakce na změnu výběru v plátně (uzel/ hrana / nic)
   const onSelectionChange = useCallback(({ nodes: ns = [], edges: es = [] }) => { setSelected(ns[0] || es[0] || null); }, []);
 
-  // Filtr
+  // Filtr: vypočítáme, které uzly jsou viditelné dle aktivních filtrů
   const visibleNodeIds = useMemo(() => new Set(nodes.filter(n=>filters[n.type]).map(n=>n.id)), [nodes, filters]);
   const filteredNodes = useMemo(() => nodes.filter(n=>visibleNodeIds.has(n.id)), [nodes, visibleNodeIds]);
   const filteredEdges = useMemo(() => edges.filter(e=>visibleNodeIds.has(e.source) && visibleNodeIds.has(e.target)), [edges, visibleNodeIds]);
@@ -62,6 +81,7 @@ export default function WebDevMap() {
   return (
     <div className="page">
       <div className="left">
+        {/* Levý panel: Toolbar + plátno React Flow */}
         <Toolbar
           onAddNode={onAddNode}
           onExport={onExport}
@@ -82,6 +102,7 @@ export default function WebDevMap() {
             nodeTypes={nodeTypes}
             fitView
           >
+            {/* Pomocné prvky plátna: mini mapa, ovládací prvky a pozadí */}
             <MiniMap pannable zoomable />
             <Controls />
             <Background variant="dots" gap={16} size={1} />
@@ -90,11 +111,13 @@ export default function WebDevMap() {
       </div>
 
       <div className="right">
+        {/* Pravý panel: editor detailů pro vybraný uzel/ hranu */}
         <div className="sidebar-header">Editor</div>
         <div className="sidebar-content">
           <NodeEditor
             selected={selected}
             onChange={(updated) => {
+              // Aktualizace dat podle toho, zda je vybraná hrana nebo uzel
               if (!updated) return;
               if (updated.source && updated.target) {
                 setEdges((eds) => eds.map((e) => (e.id === updated.id ? { ...e, ...updated } : e)));
@@ -105,6 +128,7 @@ export default function WebDevMap() {
             }}
           />
         </div>
+        {/* Informace o autosave a použitém klíči v LocalStorage */}
         <div className="sidebar-footer">Autosave: LocalStorage → {STORAGE_KEY}</div>
       </div>
     </div>

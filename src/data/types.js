@@ -1,4 +1,11 @@
-// Typy uzlů (barvy + labely)
+// Definice typů uzlů používaných v mapě.
+// Každý typ určuje:
+// - `id`: interní identifikátor
+// - `label`: zobrazovaný název v UI
+// - `color`: výplň uzlu
+// - `border`: barva rámečku
+// - `ring`: barva zvýraznění (např. při výběru)
+// Tyto barvy doplňují vzhled v komponentě uzlu (inline styly/Tailwind @apply).
 export const TYPES = [
   { id: "info",     label: "Info",        color: "#ffffff", border: "#e5e7eb", ring: "#111827" },
   { id: "decision", label: "Rozhodnutí",  color: "#fffbeb", border: "#fcd34d", ring: "#f59e0b" },

@@ -1,3 +1,5 @@
+// Editor vlastností pro vybraný prvek v plátně (uzel nebo hrana).
+// Přepíná se mezi záložkami a deleguje specifické části na ArrayEditor/LinkEditor.
 import React, { useState } from "react";
 import { TYPES } from "../../data/types";
 import ArrayEditor from "./ArrayEditor";
@@ -9,6 +11,7 @@ export default function NodeEditor({ selected, onChange }) {
   const isEdge = selected?.source && selected?.target;
 
   if (isEdge) {
+    // Režim editace hrany: label a volitelná podmínka v `data.condition`
     return (
       <div className="panel">
         <div className="panel-subtitle">Hrana: {selected.id}</div>
@@ -21,6 +24,7 @@ export default function NodeEditor({ selected, onChange }) {
   }
 
   const node = selected;
+  // Pomocná funkce pro částečnou aktualizaci `node.data`
   const setData = (patch) => onChange({ ...node, data: { ...node.data, ...patch } });
 
   return (
@@ -42,6 +46,7 @@ export default function NodeEditor({ selected, onChange }) {
           <div className="row">
             <div className="col">
               <label className="label">Typ uzlu</label>
+              {/* Přepnutí typu uzlu ovlivní barvy i vzhled v plátně */}
               <select className="input" value={node.type} onChange={(e) => onChange({ ...node, type: e.target.value })}>
                 {TYPES.map(t=> (<option key={t.id} value={t.id}>{t.label}</option>))}
               </select>
@@ -56,12 +61,14 @@ export default function NodeEditor({ selected, onChange }) {
 
       {tab === 'pros' && (
         <div className="row">
+          {/* Editor seznamů výhod/nevýhod */}
           <ArrayEditor label="Výhody" items={node.data.pros || []} onChange={(arr) => setData({ pros: arr })} />
           <ArrayEditor label="Nevýhody" items={node.data.cons || []} onChange={(arr) => setData({ cons: arr })} />
         </div>
       )}
 
       {tab === 'links' && (
+        // Editor odkazů a tagů (tagy lze upravit i v "Základ")
         <LinkEditor links={node.data.links || []} onChange={(links) => setData({ links })} />
       )}
     </div>

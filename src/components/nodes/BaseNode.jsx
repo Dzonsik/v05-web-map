@@ -1,7 +1,10 @@
+// Základní vizuální podoba uzlu v React Flow.
+// Styluje se podle typu (barvy) a zobrazuje obsah z `data`.
 import { Handle, Position } from "reactflow";
 import { TYPES } from "../../data/types";
 
 export default function BaseNode({ type, data, selected }) {
+  // Najdeme definici typu (fallback na první typ, pokud neexistuje)
   const def = TYPES.find(t => t.id === type) || TYPES[0];
   return (
     <div
@@ -9,9 +12,11 @@ export default function BaseNode({ type, data, selected }) {
       style={{
         background: def.color,
         borderColor: def.border,
+        // Při výběru zvýrazníme uzel barevným "ringem"
         boxShadow: selected ? `0 0 0 2px ${def.ring}` : '0 1px 2px rgba(0,0,0,0.08)'
       }}
     >
+      {/* Horní handle: cílový (příchozí hrany) */}
       <Handle type="target" position={Position.Top} />
       <div className="node-title">{data.title || def.label}</div>
 
@@ -49,6 +54,7 @@ export default function BaseNode({ type, data, selected }) {
         </div>
       ) : null}
 
+      {/* Spodní handle: zdrojový (odchozí hrany) */}
       <Handle type="source" position={Position.Bottom} />
     </div>
   );

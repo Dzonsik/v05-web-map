@@ -1,7 +1,16 @@
+/*
+  Výstupní CSS generované Tailwindem (v4). 
+  Tento soubor by měl být brán jako build artefakt – úpravy dělejte primárně v `src/input.css` a konfigu (např. tailwind/postcss),
+  odkud se sem promítnou. Zde přidáváme pouze vysvětlující komentáře k hlavním sekcím.
+*/
+
+/* Načtení Tailwind presetů (v4 styl) */
 @import "tailwindcss";
 
 /*! tailwindcss v4.1.14 | MIT License | https://tailwindcss.com */
+/* Definice pořadí vrstev Tailwindu: témata, base reset, komponenty, utility */
 @layer theme, base, components, utilities;
+/* Vrstva theme: kořenové CSS proměnné (fonty apod.) */
 @layer theme {
   :root, :host {
     --font-sans: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji",
@@ -12,6 +21,7 @@
     --default-mono-font-family: var(--font-mono);
   }
 }
+/* Vrstva base: CSS reset + defaultní styly pro elementy */
 @layer base {
   *, ::after, ::before, ::backdrop, ::file-selector-button {
     box-sizing: border-box;
@@ -116,6 +126,7 @@
   ::placeholder {
     opacity: 1;
   }
+  /* Jemné nastavení placeholderů s podporou moderních color-mix funkcí */
   @supports (not (-webkit-appearance: -apple-pay-button))  or (contain-intrinsic-size: 1px) {
     ::placeholder {
       color: currentcolor;
@@ -159,4 +170,5 @@
     display: none !important;
   }
 }
+/* Registrace utility vrstvy (utility třídy jsou generované podle použití) */
 @layer utilities;

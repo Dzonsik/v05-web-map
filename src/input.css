@@ -1,6 +1,13 @@
+/*
+  Vstupní CSS pro Tailwind (zdroj pravdy pro generování `src/output.css`).
+  Upravujte utility, theme proměnné a případné pluginové direktivy zde.
+*/
+
+/* Načtení Tailwindu (v4). Build nástroje z toho vygenerují utility/vrstvy. */
 @import "tailwindcss";
 
-/* volitelné – “config” přímo v CSS: */
+/* Volitelný inline „config“ v CSS: definujeme proměnnou brand barvy,
+   dostupnou jako `color-brand` v Tailwind theme. */
 @theme {
   --color-brand: #3b82f6;
 }

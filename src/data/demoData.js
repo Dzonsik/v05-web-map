@@ -1,9 +1,13 @@
+// Demo data pro počáteční stav diagramu.
+// Slouží jako seed, pokud v LocalStorage ještě nejsou uložená data.
 import { MarkerType } from "reactflow";
 
-// Demo obsah mapy
+// Funkce vrací objekt s verzí, uzly, hranami a výchozím viewportem.
+// Udržujeme ji jako funkci (ne konstantu), aby každé volání vytvářelo čerstvé objekty.
 export const demo = () => ({
   version: 2,
   nodes: [
+    // Základní uzly: info, rozhodnutí, technologie, úkol, zdroj
     { id: "start", type: "info", position: { x: 0, y: 0 }, data: { title: "Nápad", summary: "Co chci postavit a proč?", tags: ["brief"] } },
     { id: "goal", type: "decision", position: { x: 350, y: -40 }, data: { title: "Cíl webu", summary: "Portfolio / Blog / E-shop / App" } },
     { id: "content", type: "decision", position: { x: 700, y: -120 }, data: { title: "Obsah", summary: "Statický vs. dynamický" } },
@@ -12,6 +16,7 @@ export const demo = () => ({
     { id: "ref-links", type: "resource", position: { x: 50, y: 160 }, data: { title: "Reference", summary: "Checklisty, články", links: [{label:"Web.dev Guides", url:"https://web.dev/learn/"}] } },
   ],
   edges: [
+    // Směrované hrany se šipkou na konci a krátkým popiskem
     { id: "e1", source: "start", target: "goal", type: "smoothstep", markerEnd: { type: MarkerType.ArrowClosed }, label: "definuj" },
     { id: "e2", source: "goal", target: "content", type: "smoothstep", markerEnd: { type: MarkerType.ArrowClosed }, label: "obsah" },
     { id: "e3", source: "goal", target: "frontend", type: "smoothstep", markerEnd: { type: MarkerType.ArrowClosed }, label: "UI" },

@@ -1,6 +1,13 @@
+/*
+  Globální styly aplikace postavené na Tailwindu.
+  Používáme utility přes @apply a pár vlastních pravidel pro layout a UI.
+  Primárně upravujte zde – generované `src/output.css` je build artefakt.
+*/
+
+/* Načtení Tailwindu – přidá vrstvy a utility do buildu */
 @import "tailwindcss";
 
-/* --- Base reset & typography (Tailwind) --- */
+/* --- Base reset & typografie (Tailwind) --- */
 @layer base {
   html, body, #root { @apply h-full; }
   body { @apply m-0 bg-gray-50 text-gray-900 font-sans; }
@@ -9,7 +16,7 @@
   button:hover { @apply border-indigo-400; }
 }
 
-/* --- App layout (Tailwind + pár raw pravidel) --- */
+/* --- App layout (Tailwind + pár vlastních pravidel) --- */
 .page {
   @apply h-screen w-full overflow-hidden grid gap-0;
   grid-template-columns: minmax(0,1fr) 340px; /* main + fixed sidebar */
@@ -28,7 +35,7 @@
 .link { @apply p-0 text-blue-600 cursor-pointer text-xs bg-transparent border-0; }
 .muted { @apply opacity-70 text-sm; }
 
-/* React Flow wrapper needs explicit size */
+/* React Flow wrapper potřebuje explicitní výšku kvůli canvasu */
 .rf-wrapper { @apply flex-1 min-h-0 w-full; height: calc(100vh - 96px); }
 
 /* Sidebar */
@@ -52,7 +59,7 @@
 .list-item { @apply flex items-center justify-between gap-2 text-sm; }
 .truncate { @apply truncate; }
 
-/* Node look (barvy necháváme dynamicky inline) */
+/* Vzhled uzlů (barvy se nastavují dynamicky inline) */
 .node-card { @apply border rounded-2xl p-3 w-[280px] bg-white; }
 .node-title { @apply font-semibold leading-tight; }
 .node-summary { @apply text-xs opacity-80 mt-1.5 whitespace-pre-wrap; } /* 80 místo 85 */
