@@ -1,0 +1,6 @@
+@import "tailwindcss";
+
+/* volitelné – “config” přímo v CSS: */
+@theme {
+  --color-brand: #3b82f6;
+}

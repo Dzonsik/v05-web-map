@@ -1,0 +1,69 @@
+import React, { useState } from "react";
+import { TYPES } from "../../data/types";
+import ArrayEditor from "./ArrayEditor";
+import LinkEditor from "./LinkEditor";
+
+export default function NodeEditor({ selected, onChange }) {
+  const [tab, setTab] = useState("basic");
+  if (!selected) return <div className="panel muted">Vyber uzel nebo hranu pro úpravu.</div>;
+  const isEdge = selected?.source && selected?.target;
+
+  if (isEdge) {
+    return (
+      <div className="panel">
+        <div className="panel-subtitle">Hrana: {selected.id}</div>
+        <label className="label">Popisek (label)</label>
+        <input className="input" value={selected.label || ""} onChange={(e) => onChange({ ...selected, label: e.target.value })} />
+        <label className="label">Podmínka (data.condition)</label>
+        <input className="input" value={selected.data?.condition || ""} onChange={(e) => onChange({ ...selected, data: { ...(selected.data||{}), condition: e.target.value } })} />
+      </div>
+    );
+  }
+
+  const node = selected;
+  const setData = (patch) => onChange({ ...node, data: { ...node.data, ...patch } });
+
+  return (
+    <div className="panel">
+      <div className="tabs">
+        <button className={`tab ${tab === 'basic' ? 'tab-active' : ''}`} onClick={()=>setTab('basic')}>Základ</button>
+        <button className={`tab ${tab === 'pros' ? 'tab-active' : ''}`} onClick={()=>setTab('pros')}>Plus / Mínus</button>
+        <button className={`tab ${tab === 'links' ? 'tab-active' : ''}`} onClick={()=>setTab('links')}>Odkazy / Tagy</button>
+      </div>
+
+      {tab === 'basic' && (
+        <>
+          <label className="label">Nadpis</label>
+          <input className="input" value={node.data.title || ""} onChange={(e) => setData({ title: e.target.value })} />
+
+          <label className="label">Shrnutí</label>
+          <textarea className="textarea" value={node.data.summary || ""} onChange={(e) => setData({ summary: e.target.value })} />
+
+          <div className="row">
+            <div className="col">
+              <label className="label">Typ uzlu</label>
+              <select className="input" value={node.type} onChange={(e) => onChange({ ...node, type: e.target.value })}>
+                {TYPES.map(t=> (<option key={t.id} value={t.id}>{t.label}</option>))}
+              </select>
+            </div>
+            <div className="col">
+              <label className="label">Tagy (čárkou)</label>
+              <input className="input" value={(node.data.tags || []).join(", ")} onChange={(e) => setData({ tags: e.target.value.split(",").map(t=>t.trim()).filter(Boolean) })} />
+            </div>
+          </div>
+        </>
+      )}
+
+      {tab === 'pros' && (
+        <div className="row">
+          <ArrayEditor label="Výhody" items={node.data.pros || []} onChange={(arr) => setData({ pros: arr })} />
+          <ArrayEditor label="Nevýhody" items={node.data.cons || []} onChange={(arr) => setData({ cons: arr })} />
+        </div>
+      )}
+
+      {tab === 'links' && (
+        <LinkEditor links={node.data.links || []} onChange={(links) => setData({ links })} />
+      )}
+    </div>
+  );
+}
