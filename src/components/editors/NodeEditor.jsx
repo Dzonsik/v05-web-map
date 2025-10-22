@@ -1,14 +1,50 @@
 // Editor vlastností pro vybraný prvek v plátně (uzel nebo hrana).
 // Přepíná se mezi záložkami a deleguje specifické části na ArrayEditor/LinkEditor.
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { TYPES } from "../../data/types";
 import ArrayEditor from "./ArrayEditor";
 import LinkEditor from "./LinkEditor";
 
 export default function NodeEditor({ selected, onChange }) {
   const [tab, setTab] = useState("basic");
-  if (!selected) return <div className="panel muted">Vyber uzel nebo hranu pro úpravu.</div>;
-  const isEdge = selected?.source && selected?.target;
+  const isEdge = !!(selected?.source && selected?.target);
+
+  const skipTagSync = useRef(false);
+  const [tagInput, setTagInput] = useState(() => {
+    if (!selected || isEdge) return "";
+    return Array.isArray(selected.data.tags) ? selected.data.tags.join(", ") : "";
+  });
+
+  useEffect(() => {
+    if (!selected || isEdge) {
+      setTagInput("");
+      skipTagSync.current = false;
+      return;
+    }
+
+    if (skipTagSync.current) {
+      skipTagSync.current = false;
+      return;
+    }
+
+    const tagsArray = Array.isArray(selected.data.tags) ? selected.data.tags : [];
+    setTagInput(tagsArray.join(", "));
+  }, [isEdge, selected?.id, selected?.data?.tags]);
+
+  const handleTagChange = (raw) => {
+    if (!selected || isEdge) return;
+    setTagInput(raw);
+    skipTagSync.current = true;
+    const next = raw
+      .split(",")
+      .map((t) => t.trim())
+      .filter(Boolean);
+    onChange({ ...selected, data: { ...selected.data, tags: next } });
+  };
+
+  if (!selected) {
+    return <div className="panel muted">Vyber uzel nebo hranu pro úpravu.</div>;
+  }
 
   if (isEdge) {
     // Režim editace hrany: label a volitelná podmínka v `data.condition`
@@ -24,6 +60,7 @@ export default function NodeEditor({ selected, onChange }) {
   }
 
   const node = selected;
+
   // Pomocná funkce pro částečnou aktualizaci `node.data`
   const setData = (patch) => onChange({ ...node, data: { ...node.data, ...patch } });
 
@@ -53,7 +90,17 @@ export default function NodeEditor({ selected, onChange }) {
             </div>
             <div className="col">
               <label className="label">Tagy (čárkou)</label>
-              <input className="input" value={(node.data.tags || []).join(", ")} onChange={(e) => setData({ tags: e.target.value.split(",").map(t=>t.trim()).filter(Boolean) })} />
+              {/* Input drží vlastní text, aby při psaní nezmizely čárky; do dat ukládáme pole tagů */}
+              <input
+                className="input"
+                value={tagInput}
+                onChange={(e) => handleTagChange(e.target.value)}
+                onBlur={() => {
+                  // Po opuštění pole text normalizujeme podle uložených tagů
+                  const tagsArray = Array.isArray(node.data.tags) ? node.data.tags : [];
+                  setTagInput(tagsArray.join(", "));
+                }}
+              />
             </div>
           </div>
         </>

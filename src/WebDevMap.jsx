@@ -1,7 +1,7 @@
 // Hlavní React komponenta pro interaktivní mapu dovedností ve webdevu.
 // Tento soubor obsahuje kontejner celé aplikace, práci se stavem uzlů/hran,
 // filtrováním, import/export dat, a pravým panelem s editorem.
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import ReactFlow, {
   addEdge, Background, Controls, MiniMap,
   useEdgesState, useNodesState, MarkerType
@@ -17,7 +17,7 @@ import { useLocalStore, STORAGE_KEY } from "./lib/storage";
 // UI komponenty: horní/levý toolbar a pravý editor vlastností uzlu/hrany
 import Toolbar from "./components/Toolbar";
 import NodeEditor from "./components/editors/NodeEditor";
-import { nodeTypes as nodeTypes } from "./components/nodes/nodeTypes";
+import { nodeTypes as NODE_TYPES } from "./components/nodes/nodeTypes";
 import './index.css';
 
 export default function WebDevMap() {
@@ -78,6 +78,8 @@ export default function WebDevMap() {
   const filteredNodes = useMemo(() => nodes.filter(n=>visibleNodeIds.has(n.id)), [nodes, visibleNodeIds]);
   const filteredEdges = useMemo(() => edges.filter(e=>visibleNodeIds.has(e.source) && visibleNodeIds.has(e.target)), [edges, visibleNodeIds]);
 
+  const nodeTypesRef = useRef(NODE_TYPES);
+
   return (
     <div className="page">
       <div className="left">
@@ -99,7 +101,7 @@ export default function WebDevMap() {
             onEdgesChange={onEdgesChange}
             onConnect={onConnect}
             onSelectionChange={onSelectionChange}
-            nodeTypes={nodeTypes}
+            nodeTypes={nodeTypesRef.current}
             fitView
           >
             {/* Pomocné prvky plátna: mini mapa, ovládací prvky a pozadí */}
