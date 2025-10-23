@@ -19,10 +19,12 @@
 /* --- App layout (Tailwind + pár vlastních pravidel) --- */
 .page {
   @apply h-screen w-full overflow-hidden grid gap-0;
-  grid-template-columns: minmax(0,1fr) 340px; /* main + fixed sidebar */
+  grid-template-columns: minmax(0,1fr) auto;
 }
 .left { @apply flex flex-col min-w-0 min-h-0 overflow-hidden; }
-.right { @apply border-l border-gray-200 bg-white flex flex-col min-h-0 overflow-hidden w-full box-border; }
+.right { @apply border-l border-gray-200 bg-white flex flex-col min-h-0 overflow-hidden w-full box-border relative; }
+.resize-handle { @apply absolute; background: transparent; }
+.resize-handle-vertical { @apply top-0 bottom-0; width: 8px; left: -4px; cursor: col-resize; }
 
 /* Toolbar */
 .toolbar { @apply sticky top-0 z-10 p-2 bg-white/90 backdrop-blur border-b border-gray-200; }
@@ -35,8 +37,9 @@
 .link { @apply p-0 text-blue-600 cursor-pointer text-xs bg-transparent border-0; }
 .muted { @apply opacity-70 text-sm; }
 
-/* React Flow wrapper potřebuje explicitní výšku kvůli canvasu */
-.rf-wrapper { @apply flex-1 min-h-0 w-full; height: calc(100vh - 96px); }
+/* React Flow wrapper vyplní zbytek levého panelu */
+.rf-wrapper { @apply flex-1 min-h-0 relative; }
+
 
 /* Sidebar */
 .sidebar-header { @apply sticky top-0 z-10 bg-white px-3 py-2 border-b border-gray-200 font-semibold; }

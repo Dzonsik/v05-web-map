@@ -33,6 +33,9 @@ export default function WebDevMap() {
   const [selected, setSelected] = useState(null);
   // Stav filtrů podle typu uzlu (výchozí: vše zapnuto)
   const [filters, setFilters] = useState(() => Object.fromEntries(TYPES.map(t=>[t.id,true])));
+  // Rozměry panelu (pravého sidebaru)
+  const [sidebarWidth, setSidebarWidth] = useState(340);
+  const dragStateRef = useRef(null);
 
   // Autosave: při každé změně uzlů/hran uložit do LocalStorage
   useEffect(() => { save({ version: 2, nodes, edges }); }, [nodes, edges, save]);
@@ -78,10 +81,52 @@ export default function WebDevMap() {
   const filteredNodes = useMemo(() => nodes.filter(n=>visibleNodeIds.has(n.id)), [nodes, visibleNodeIds]);
   const filteredEdges = useMemo(() => edges.filter(e=>visibleNodeIds.has(e.source) && visibleNodeIds.has(e.target)), [edges, visibleNodeIds]);
 
+  useEffect(() => {
+    const handlePointerMove = (event) => {
+      const drag = dragStateRef.current;
+      if (!drag) return;
+      event.preventDefault();
+
+      if (drag.type === "sidebar") {
+        const delta = event.clientX - drag.startX;
+        const next = Math.min(Math.max(drag.startValue - delta, 260), 640);
+        setSidebarWidth(next);
+      }
+
+    };
+
+    const handlePointerUp = () => {
+      if (!dragStateRef.current) return;
+      dragStateRef.current = null;
+      document.body.style.cursor = "";
+      document.body.style.userSelect = "";
+    };
+
+    window.addEventListener("pointermove", handlePointerMove);
+    window.addEventListener("pointerup", handlePointerUp);
+    return () => {
+      window.removeEventListener("pointermove", handlePointerMove);
+      window.removeEventListener("pointerup", handlePointerUp);
+    };
+  }, [setSidebarWidth]);
+
+  const startSidebarResize = useCallback((event) => {
+    dragStateRef.current = { type: "sidebar", startX: event.clientX, startValue: sidebarWidth };
+    document.body.style.cursor = "col-resize";
+    document.body.style.userSelect = "none";
+    event.preventDefault();
+    event.stopPropagation();
+  }, [sidebarWidth]);
+
+  useEffect(() => () => {
+    document.body.style.cursor = "";
+    document.body.style.userSelect = "";
+  }, []);
+
   const nodeTypesRef = useRef(NODE_TYPES);
 
   return (
-    <div className="page">
+    <div className="page" style={{ gridTemplateColumns: `minmax(0,1fr) ${Math.round(sidebarWidth)}px` }}>
       <div className="left">
         {/* Levý panel: Toolbar + plátno React Flow */}
         <Toolbar
@@ -103,16 +148,22 @@ export default function WebDevMap() {
             onSelectionChange={onSelectionChange}
             nodeTypes={nodeTypesRef.current}
             fitView
+            style={{ height: "100%" }}
           >
             {/* Pomocné prvky plátna: mini mapa, ovládací prvky a pozadí */}
-            <MiniMap pannable zoomable />
             <Controls />
             <Background variant="dots" gap={16} size={1} />
           </ReactFlow>
         </div>
       </div>
 
-      <div className="right">
+      <div className="right" style={{ width: sidebarWidth, minWidth: sidebarWidth }}>
+        <div
+          className="resize-handle resize-handle-vertical"
+          onPointerDown={startSidebarResize}
+          role="separator"
+          aria-orientation="vertical"
+        />
         {/* Pravý panel: editor detailů pro vybraný uzel/ hranu */}
         <div className="sidebar-header">Editor</div>
         <div className="sidebar-content">
@@ -129,6 +180,16 @@ export default function WebDevMap() {
               setSelected(updated);
             }}
           />
+          <aside>
+            <MiniMap
+              pannable
+              zoomable
+              position="bottom-right"
+              style={{ border: "none", borderRadius: 8, overflow: "hidden", boxShadow: "0 4px 12px rgba(15, 23, 42, 0.18)" }}
+              nodeColor={(node) => TYPES.find((t) => t.id === node.type)?.color || "#f1f5f9"}
+              nodeStrokeColor={(node) => TYPES.find((t) => t.id === node.type)?.border || "#cbd5f5"}
+            />
+          </aside>
         </div>
         {/* Informace o autosave a použitém klíči v LocalStorage */}
         <div className="sidebar-footer">Autosave: LocalStorage → {STORAGE_KEY}</div>
