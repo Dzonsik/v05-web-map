@@ -151,6 +151,14 @@ export default function WebDevMap() {
             style={{ height: "100%" }}
           >
             {/* Pomocné prvky plátna: mini mapa, ovládací prvky a pozadí */}
+            <MiniMap
+              pannable
+              zoomable
+              position="bottom-right"
+              style={{ border: "none", borderRadius: 8, overflow: "hidden", boxShadow: "0 4px 12px rgba(15, 23, 42, 0.18)" }}
+              nodeColor={(node) => TYPES.find((t) => t.id === node.type)?.color || "#f1f5f9"}
+              nodeStrokeColor={(node) => TYPES.find((t) => t.id === node.type)?.border || "#cbd5f5"}
+            />
             <Controls />
             <Background variant="dots" gap={16} size={1} />
           </ReactFlow>
@@ -180,16 +188,6 @@ export default function WebDevMap() {
               setSelected(updated);
             }}
           />
-          <aside>
-            <MiniMap
-              pannable
-              zoomable
-              position="bottom-right"
-              style={{ border: "none", borderRadius: 8, overflow: "hidden", boxShadow: "0 4px 12px rgba(15, 23, 42, 0.18)" }}
-              nodeColor={(node) => TYPES.find((t) => t.id === node.type)?.color || "#f1f5f9"}
-              nodeStrokeColor={(node) => TYPES.find((t) => t.id === node.type)?.border || "#cbd5f5"}
-            />
-          </aside>
         </div>
         {/* Informace o autosave a použitém klíči v LocalStorage */}
         <div className="sidebar-footer">Autosave: LocalStorage → {STORAGE_KEY}</div>
