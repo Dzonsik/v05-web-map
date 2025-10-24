@@ -118,6 +118,7 @@ export default function NodeEditor({ selected, onChange }) {
         // Editor odkazů a tagů (tagy lze upravit i v "Základ")
         <LinkEditor links={node.data.links || []} onChange={(links) => setData({ links })} />
       )}
+
     </div>
   );
 }

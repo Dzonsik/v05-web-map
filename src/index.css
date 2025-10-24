@@ -38,13 +38,12 @@
 .muted { @apply opacity-70 text-sm; }
 
 /* React Flow wrapper vyplní zbytek levého panelu */
-.rf-wrapper { @apply flex-1 min-h-0 relative; }
-
+.rf-wrapper { @apply flex-1 min-h-0 relative overflow-auto; }
 
 /* Sidebar */
 .sidebar-header { @apply sticky top-0 z-10 bg-white px-3 py-2 border-b border-gray-200 font-semibold; }
 .sidebar-content { @apply flex-1 min-h-0 overflow-auto; }
-.sidebar-footer { @apply px-3 py-2 border-t border-gray-200 text-xs opacity-70; }
+.sidebar-footer { @apply px-3 py-2 z-10 border-t border-gray-200 text-xs opacity-70; }
 
 /* Panels & form controls */
 .panel { @apply flex flex-col gap-2 p-3; }

@@ -126,7 +126,7 @@ export default function WebDevMap() {
   const nodeTypesRef = useRef(NODE_TYPES);
 
   return (
-    <div className="page" style={{ gridTemplateColumns: `minmax(0,1fr) ${Math.round(sidebarWidth)}px` }}>
+    <div className="page">
       <div className="left">
         {/* Levý panel: Toolbar + plátno React Flow */}
         <Toolbar
@@ -148,16 +148,13 @@ export default function WebDevMap() {
             onSelectionChange={onSelectionChange}
             nodeTypes={nodeTypesRef.current}
             fitView
-            style={{ height: "100%" }}
           >
             {/* Pomocné prvky plátna: mini mapa, ovládací prvky a pozadí */}
             <MiniMap
-              pannable
-              zoomable
-              position="bottom-right"
-              style={{ border: "none", borderRadius: 8, overflow: "hidden", boxShadow: "0 4px 12px rgba(15, 23, 42, 0.18)" }}
-              nodeColor={(node) => TYPES.find((t) => t.id === node.type)?.color || "#f1f5f9"}
-              nodeStrokeColor={(node) => TYPES.find((t) => t.id === node.type)?.border || "#cbd5f5"}
+            pannable
+            zoomable
+            nodeColor={(node) => TYPES.find((t) => t.id === node.type)?.color || "#f1f5f9"}
+            nodeStrokeColor={(node) => TYPES.find((t) => t.id === node.type)?.border || "#cbd5f5"}
             />
             <Controls />
             <Background variant="dots" gap={16} size={1} />
